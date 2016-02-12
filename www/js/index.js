@@ -94,32 +94,48 @@ var LapButton = {
     _elem: $('#lapButton'),
     _heldTime: null,
     _interval: null,
-    _intervalTime: 3000,
+    _intervalTime: 1000,
+    _pop: false,
     activate: function() {
         this._heldTime = new Date();
-        _interval = setInterval(function(that) {
-            time_to_reach = that._heldTime + that._intervalTime;
-            timeDiff = time_to_reach - new Date();
-            console.log(console.log(timeDiff));
+        this._interval = setInterval(function(that) {
+            timeDiff = (that._heldTime - new Date()) + that._intervalTime;
+            percent = ((1000 - timeDiff) / 1000) * 100;
             if (timeDiff < 5) {
-                that.deactivate();
-                console.log('pop!');
+                that._pop = true;
+                clearInterval(that._interval);
             }
-        }, 10, this)
+            if (percent > 100) {
+                percent = 100;
+            }
+            $('.background').stop().animate({width: percent + '%'}, 99);
+            
+        }, 100, this)
     },
     deactivate: function() {
         clearInterval(this._interval);
+        $('.background').animate({ width: '0%'}, 500);
+        if (this._pop) {
+            this.pop();
+            this._pop = false;
+        }        
+    },
+    pop: function() {
+        timer.lap();
+        console.log('Popped!');
     }
 }
+
+var lapButton = Object.create(LapButton);
 $(function(){
-  $( "div.lapButton" ).bind( "vmousedown", tapholddHandler );
-    $( "div.lapButton" ).bind( "vmouseup", tapholduHandler );
+  $( "div#lapButton" ).bind( "vmousedown", tapholddHandler );
+    $( "div#lapButton" ).bind( "vmouseup", tapholduHandler );
  
   function tapholddHandler( event ){
-    console.log('vmousedown');
+    lapButton.activate();
   }
   function tapholduHandler( event ){
-    console.log('vmouse');
+    lapButton.deactivate();
   }
 });
 
