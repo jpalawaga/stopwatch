@@ -40,6 +40,89 @@ $('#nameBox').keypress(function(event) {
    }
 });
 
+var Timer = {
+    lapTimes: [],
+    _interval: null,
+    _elem: null,
+    init: function(element) {
+        this._elem = element;
+    },
+    start: function() {
+        this.lapTimes.push(new Date());
+        this._interval = setInterval(function(that) {
+            var t = new Date();
+            that._elem.html(formatLapTime(t - that.lapTimes[0]));
+        }, 10, this);
+        console.log("started!");
+    },
+    lap: function() {
+        var lapTime = new Date()
+        var lastTime = this.lapTimes.slice(-1)[0];
+        this.lapTimes.push(lapTime)
+        var diff = lapTime - lastTime;
+        console.log("Lap time:" + formatLapTime(diff))
+    },
+    stop: function () {
+        clearInterval(this._interval);
+        console.log("stop!");
+    }
+}
+
+var timer = Object.create(Timer);
+timer.init($('#timer'));
+
+function formatLapTime(time) {
+    var timeString = '.' + pad(Math.round(time % 1000 / 10))
+    var seconds = Math.floor(time / 1000);
+    var minutes = 0;
+    
+    if (seconds > 60) {
+        minutes = Math.floor(seconds / 60);
+    }
+    
+    timeString = pad(minutes) + ":" + pad(seconds % 60) + timeString;
+    
+    return timeString;
+}
+
+function pad(time) {
+    var str = '000000' + time;
+    return str.substr(str.length - 2, 2);
+}
+
+var LapButton = {
+    _elem: $('#lapButton'),
+    _heldTime: null,
+    _interval: null,
+    _intervalTime: 3000,
+    activate: function() {
+        this._heldTime = new Date();
+        _interval = setInterval(function(that) {
+            time_to_reach = that._heldTime + that._intervalTime;
+            timeDiff = time_to_reach - new Date();
+            console.log(console.log(timeDiff));
+            if (timeDiff < 5) {
+                that.deactivate();
+                console.log('pop!');
+            }
+        }, 10, this)
+    },
+    deactivate: function() {
+        clearInterval(this._interval);
+    }
+}
+$(function(){
+  $( "div.lapButton" ).bind( "vmousedown", tapholddHandler );
+    $( "div.lapButton" ).bind( "vmouseup", tapholduHandler );
+ 
+  function tapholddHandler( event ){
+    console.log('vmousedown');
+  }
+  function tapholduHandler( event ){
+    console.log('vmouse');
+  }
+});
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file

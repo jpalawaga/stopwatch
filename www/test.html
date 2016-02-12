@@ -26,7 +26,6 @@
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <title>Hello World</title>
 
@@ -36,26 +35,13 @@
         
         <div id="welcome-screen" data-role="page">
             <div data-role="content" data-enhance="false">
-                <h1>Welcome,</h1>
-                    <div class="input-box">
-                        <input type="text" id="nameBox" value="" oninput="adjustWelcomeBox();" maxlength="13" autocorrect="false" autocomplete="off" spellcheck="false" tabindex="0" data-enhance="false"></div>
-                    <div id="width-calc"></div> <!-- ghost element for sz calc -->
-                <a data-transition="slide" href="#pagetwo">
-                    <button id="welcome-pass"> I'll pass. </button>
-                </a>
+                <div id="lapButton">
+                    <div class="background"></div>
+                    Lap
+                </div>
             </div>
         </div>
 
-        <div id="pagetwo" data-role="page">
-            <div data-role="content" data-enhance="false">
-                Timer:
-                <div id="timer" style="background-color:#ccc;">test</div>
-                <button onclick="timer.start()">Start</button>
-                <button onclick="timer.stop()">stop</button>
-                <button onclick="timer.lap()">lap</button>
-            </div>
-        </div>
-        
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
         <!-- Remove styling where needed. -->
         <!-- http://stackoverflow.com/questions/15987014 -->
