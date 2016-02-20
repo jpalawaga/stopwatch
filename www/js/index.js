@@ -91,12 +91,15 @@ function pad(time) {
 }
 
 var LapButton = {
-    _elem: $('#lapButton'),
+    _elem: null,
+    _backElem: null,
     _heldTime: null,
     _interval: null,
     _intervalTime: 1000,
     _pop: false,
+    _popFunc: null,
     activate: function() {
+        console.log('lol');
         this._heldTime = new Date();
         this._interval = setInterval(function(that) {
             timeDiff = (that._heldTime - new Date()) + that._intervalTime;
@@ -105,38 +108,54 @@ var LapButton = {
                 that._pop = true;
                 clearInterval(that._interval);
             }
-            if (percent > 100) {
+            if (percent > 99) {
                 percent = 100;
             }
-            $('.background').stop().animate({width: percent + '%'}, 99);
+            that._backElem.width(percent + '%');
             
-        }, 100, this)
+        }, 5, this)
     },
     deactivate: function() {
         clearInterval(this._interval);
-        $('.background').animate({ width: '0%'}, 500);
+        this._backElem.animate({ width: '0%'}, 200);
         if (this._pop) {
             this.pop();
             this._pop = false;
         }        
     },
     pop: function() {
-        timer.lap();
+        this._popFunc();
         console.log('Popped!');
+    },
+    init: function(elem, cb) {
+        this._elem = elem;
+        this._backElem = elem.find('.background');
+        this._popFunc = cb;
+        elem.bind( "vmousedown", this.activate.bind(this) );
+        elem.bind( "vmouseup", this.deactivate.bind(this) );
     }
 }
 
+// Setup our fancy-buttons
+$('#lapButton').toggle()
+$('#stopButton').toggle()
 var lapButton = Object.create(LapButton);
-$(function(){
-  $( "div#lapButton" ).bind( "vmousedown", tapholddHandler );
-    $( "div#lapButton" ).bind( "vmouseup", tapholduHandler );
- 
-  function tapholddHandler( event ){
-    lapButton.activate();
-  }
-  function tapholduHandler( event ){
-    lapButton.deactivate();
-  }
+lapButton.init($('#lapButton'), function(){timer.lap()});
+
+var stopButton = Object.create(LapButton);
+stopButton.init($('#stopButton'), function(){
+    timer.stop()
+    $('#stopButton').toggle()
+    $('#startButton').toggle();
+    $('#lapButton').toggle();
+});
+
+var startButton = Object.create(LapButton);
+startButton.init($('#startButton'), function(){ 
+    $('#startButton').toggle();
+    $('#lapButton').toggle();
+    $('#stopButton').toggle()
+    timer.start();
 });
 
 /*
