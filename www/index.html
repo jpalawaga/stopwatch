@@ -47,9 +47,33 @@
         </div>
 
         <div id="pagetwo" data-role="page">
+            <div data-role="panel" id="summary" data-position="right" data-display="overlay">
+                <div class="panel-content">
+                    <div class="grats">
+                        Nice work <span id="name">James</span>!
+                    </div>
+                    <div class="review">
+                        You ran 
+                        <span id="laps">5</span>
+                        laps in <span id="time">04:39.12</span>.
+                    </div>
+                    <h1>Lap Summary</h1>
+                    <ol>
+                      <li>00:35:12</li> 
+                      <li>00:35:12</li> 
+                      <li>00:35:12</li> 
+                      <li>00:35:12</li> 
+                      <li>00:35:12</li> 
+                    </ol>
+                </div>
+            </div>
             <div data-role="content" data-enhance="false">
-              <div id="stopButton"><div class="background"></div>Finish</div>
-                <div id="timer">00:00.00</div>
+                <div id="stopButton"><div class="background"></div>Finish</div>
+                <div id="timer" onclick="$('#summary').panel('open')">00:00.00</div>
+                <div id="elapsedBox">
+                    ELAPSED:
+                    <span id="elapsed">00:00.00</span>
+                </div>
                 <div id="lapButton">
                     <div class="background"></div>
                     Lap
@@ -62,9 +86,15 @@
         </div>
         
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-        <!-- Remove styling where needed. -->
-        <!-- http://stackoverflow.com/questions/15987014 -->
         <script>     
+            // hide unsightly stuff while jqm loads
+            $('html').hide()
+            $(document).ready(function() {
+              $('html').show();
+            });
+
+            // Remove styling where needed.
+            // http://stackoverflow.com/questions/15987014
             $(document).on('mobileinit', function () {
                 $.mobile.ignoreContentEnabled = true;
             });

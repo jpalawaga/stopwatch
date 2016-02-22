@@ -43,15 +43,18 @@ $('#nameBox').keypress(function(event) {
 var Timer = {
     lapTimes: [],
     _interval: null,
-    _elem: null,
-    init: function(element) {
-        this._elem = element;
+    _lapElem: null,
+    _totalElem: null,
+    init: function(lapElem, totalElem) {
+        this._lapElem = lapElem;
+        this._totalElem = totalElem;
     },
     start: function() {
         this.lapTimes.push(new Date());
         this._interval = setInterval(function(that) {
             var t = new Date();
-            that._elem.html(formatLapTime(t - that.lapTimes[0]));
+            that._lapElem.html(formatLapTime(t - that.lapTimes[that.lapTimes.length - 1]));
+            that._totalElem.html(formatLapTime(t - that.lapTimes[0]));
         }, 10, this);
         console.log("started!");
     },
@@ -69,7 +72,7 @@ var Timer = {
 }
 
 var timer = Object.create(Timer);
-timer.init($('#timer'));
+timer.init($('#timer'), $('#elapsed'));
 
 function formatLapTime(time) {
     var timeString = '.' + pad(Math.round(time % 1000 / 10))
@@ -99,17 +102,16 @@ var LapButton = {
     _pop: false,
     _popFunc: null,
     activate: function() {
-        console.log('lol');
+        this._backElem.stop();
         this._heldTime = new Date();
         this._interval = setInterval(function(that) {
             timeDiff = (that._heldTime - new Date()) + that._intervalTime;
             percent = ((1000 - timeDiff) / 1000) * 100;
-            if (timeDiff < 5) {
-                that._pop = true;
-                clearInterval(that._interval);
-            }
             if (percent > 99) {
                 percent = 100;
+                that._pop = true;
+                clearInterval(that._interval);
+                that._backElem.fadeOut(200).fadeIn(200);
             }
             that._backElem.width(percent + '%');
             
@@ -117,7 +119,7 @@ var LapButton = {
     },
     deactivate: function() {
         clearInterval(this._interval);
-        this._backElem.animate({ width: '0%'}, 200);
+        this._backElem.stop().animate({ width: '0%'}, 200);
         if (this._pop) {
             this.pop();
             this._pop = false;
@@ -125,6 +127,7 @@ var LapButton = {
     },
     pop: function() {
         this._popFunc();
+
         console.log('Popped!');
     },
     init: function(elem, cb) {
@@ -144,69 +147,24 @@ lapButton.init($('#lapButton'), function(){timer.lap()});
 
 var stopButton = Object.create(LapButton);
 stopButton.init($('#stopButton'), function(){
+    var name = $('#nameBox').val();
+    $('#name').html(" " + name);
+    $('#laps').html(timer.lapTimes.length)
     timer.stop()
-    $('#stopButton').toggle()
+    $('#stopButton').slideUp();
     $('#startButton').toggle();
     $('#lapButton').toggle();
+    $('#summary').panel('open');
 });
 
 var startButton = Object.create(LapButton);
 startButton.init($('#startButton'), function(){ 
     $('#startButton').toggle();
     $('#lapButton').toggle();
-    $('#stopButton').toggle()
+    $('#stopButton').slideDown();
     timer.start();
 });
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-        adjustWelcomeBox();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicitly call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-        adjustWelcomeBox();
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('#nameBox');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
-    }
-};
-
+document.addEventListener('deviceready', function(){
+    adjustWelcomeBox();
+}, false);
