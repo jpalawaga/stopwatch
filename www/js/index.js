@@ -1,3 +1,5 @@
+/** All Javascript is (C) James Palawaga 2016 -- All rights Resrved **/
+
 /* This function adjust the size of the textbox
     on the welcome screen for a nice presentation */
 function adjustWelcomeBox() {
@@ -71,6 +73,12 @@ var Timer = {
         this.lapTimes.push(this.stopTime);
         clearInterval(this._interval);
         console.log("stop!");
+    },
+    reset: function () {
+        this.lapTimes = [];
+        this._stopTime = null;
+        this._lapElem.html('00:00.00');
+        this._totalElem.html('00:00.00');
     }
 }
 
@@ -170,6 +178,7 @@ stopButton.init($('#stopButton'), function(){
     });
     $('#lapTimes').html(lapHtml);
     $('#summary').panel('open');
+    timer.reset();
 });
 
 var startButton = Object.create(LapButton);
