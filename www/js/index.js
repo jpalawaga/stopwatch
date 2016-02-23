@@ -42,6 +42,7 @@ $('#nameBox').keypress(function(event) {
 
 var Timer = {
     lapTimes: [],
+    stopTime: null,
     _interval: null,
     _lapElem: null,
     _totalElem: null,
@@ -53,8 +54,8 @@ var Timer = {
         this.lapTimes.push(new Date());
         this._interval = setInterval(function(that) {
             var t = new Date();
-            that._lapElem.html(formatLapTime(t - that.lapTimes[that.lapTimes.length - 1]));
-            that._totalElem.html(formatLapTime(t - that.lapTimes[0]));
+            that._lapElem.html(formatTime(t - that.lapTimes[that.lapTimes.length - 1]));
+            that._totalElem.html(formatTime(t - that.lapTimes[0]));
         }, 10, this);
         console.log("started!");
     },
@@ -63,9 +64,11 @@ var Timer = {
         var lastTime = this.lapTimes.slice(-1)[0];
         this.lapTimes.push(lapTime)
         var diff = lapTime - lastTime;
-        console.log("Lap time:" + formatLapTime(diff))
+        console.log("Lap time:" + formatTime(diff))
     },
     stop: function () {
+        this.stopTime = new Date();
+        this.lapTimes.push(this.stopTime);
         clearInterval(this._interval);
         console.log("stop!");
     }
@@ -74,7 +77,7 @@ var Timer = {
 var timer = Object.create(Timer);
 timer.init($('#timer'), $('#elapsed'));
 
-function formatLapTime(time) {
+function formatTime(time) {
     var timeString = '.' + pad(Math.round(time % 1000 / 10))
     var seconds = Math.floor(time / 1000);
     var minutes = 0;
@@ -115,7 +118,7 @@ var LapButton = {
             }
             that._backElem.width(percent + '%');
             
-        }, 5, this)
+        }, 10, this)
     },
     deactivate: function() {
         clearInterval(this._interval);
@@ -147,13 +150,25 @@ lapButton.init($('#lapButton'), function(){timer.lap()});
 
 var stopButton = Object.create(LapButton);
 stopButton.init($('#stopButton'), function(){
-    var name = $('#nameBox').val();
-    $('#name').html(" " + name);
-    $('#laps').html(timer.lapTimes.length)
     timer.stop()
     $('#stopButton').slideUp();
     $('#startButton').toggle();
     $('#lapButton').toggle();
+    
+    // Prepare the summary & display it.
+    var name = $('#nameBox').val();
+    $('#name').html(" " + name);
+    $('#laps').html(timer.lapTimes.length - 1);
+    var timeDiff = timer.stopTime - timer.lapTimes[0];
+    $('#time').html(formatTime(timeDiff));
+    var lapHtml = '';
+    var max = timer.lapTimes.length
+    timer.lapTimes.forEach(function(elem, iter) {
+        if (iter < max - 1) {
+            lapHtml += '<li>' + formatTime(timer.lapTimes[iter+1] - timer.lapTimes[iter]) + '</li>'    
+        }
+    });
+    $('#lapTimes').html(lapHtml);
     $('#summary').panel('open');
 });
 
